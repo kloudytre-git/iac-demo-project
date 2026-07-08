@@ -9,10 +9,10 @@ terraform {
   }
 
   backend "s3" {
-    bucket         = "kloudy-tfstate-2026"       # SAME as dev
+    bucket         = "kloudy-tfstate-2026"            # SAME as dev
     key            = "envs/staging/terraform.tfstate" # <-- CHANGED (was envs/dev/...)
     region         = "us-east-1"
-    dynamodb_table = "terraform-locks"                # SAME as dev
+    dynamodb_table = "terraform-locks" # SAME as dev
     encrypt        = true
   }
 }
