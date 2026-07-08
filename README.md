@@ -96,3 +96,5 @@ The main billed resources are the NAT gateway, the Application Load Balancer, th
 ## Possible extensions
 
 CI/CD that runs `fmt`, `validate`, and `plan` on pull requests; HTTPS via an ACM certificate on the load balancer; security scanning with `tfsec` or `checkov`; and multi-region for disaster recovery.
+
+> CI/CD: Every pull request runs an automated pipeline — format check, TFLint, tfsec security scan, validate, and plan — and posts the plan as a PR comment. AWS access uses short-lived OIDC credentials scoped to this repository, not stored keys. The CI role is read-only; applies would be gated behind manual approval.
