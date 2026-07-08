@@ -40,3 +40,17 @@ module "compute" {
   max_size         = 4
   desired_capacity = 2
 }
+
+module "database" {
+  source = "../../modules/database"
+
+  project     = var.project
+  environment = var.environment
+
+  private_subnet_ids         = module.networking.private_subnet_ids
+  database_security_group_id = module.security.database_security_group_id
+
+  db_name     = "appdb"
+  db_username = "appadmin"
+  db_port     = 5432
+}
