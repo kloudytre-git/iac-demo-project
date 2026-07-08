@@ -1,0 +1,5 @@
+# Files to ignore by specific name or extension
+.terraform/
+*.tfstate
+*tfstate.backup
+*.tfvars
