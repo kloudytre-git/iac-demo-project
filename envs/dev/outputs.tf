@@ -16,3 +16,7 @@ output "alb_security_group_id" {
 output "app_security_group_id" {
   value = module.security.app_security_group_id
 }
+output "alb_url" {
+  description = "Visit this in your browser"
+  value       = "http://${module.compute.alb_dns_name}"
+}
