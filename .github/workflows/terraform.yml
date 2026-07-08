@@ -1,0 +1,72 @@
+name: Terraform CI
+
+on:
+  pull_request:
+    paths:
+      - 'envs/**'
+      - 'modules/**'
+      - '.github/workflows/**'
+
+permissions:
+  contents: read
+  id-token: write        # allows requesting the OIDC token
+  pull-requests: write   # allows commenting the plan on the PR
+
+jobs:
+  terraform:
+    name: validate and plan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.0
+
+      - name: Check formatting
+        run: terraform fmt -check -recursive
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
+
+      - name: Run TFLint
+        run: tflint --recursive
+
+      - name: Security scan (tfsec)
+        uses: aquasecurity/tfsec-action@v1.0.0
+        with:
+          soft_fail: true
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: "arn:aws:iam::641079926590:role/github-actions-terraform"
+          aws-region: us-east-1
+
+      - name: Terraform init
+        run: terraform -chdir=envs/dev init
+
+      - name: Terraform validate
+        run: terraform -chdir=envs/dev validate
+
+      - name: Terraform plan
+        id: plan
+        run: terraform -chdir=envs/dev plan -no-color -input=false -lock=false
+
+      - name: Comment plan on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const output = `#### Terraform Plan 📖
+            \`\`\`
+            ${{ steps.plan.outputs.stdout }}
+            \`\`\``;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            });
